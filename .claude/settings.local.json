@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c \"import platform; print\\(platform.machine\\(\\)\\)\")",
+      "Bash(pip freeze)",
+      "Bash(source venv/bin/activate)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); [print\\(c[''title''], c[''filename'']\\) for c in d[''clips'']]\")",
+      "Bash(# Check monsterlab clip properties - was source also landscape? ffprobe -v error -show_streams -of json /Users/zekeriyyaozkul/Desktop/ai_gaming_shorts/games/monsterlab/clips/clip_01_9_viral.mp4)",
+      "Bash(# Check source video properties - Fight01.mp4 ffprobe -v error -show_streams -of json /Users/zekeriyyaozkul/Desktop/ai_gaming_shorts/ai_gaming_shorts_web/games/default/raw/Fight01.mp4)",
+      "Bash(python3 -c \":*)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\)[''format'']; print\\(''format:'', d.get\\(''format_name''\\)\\); [print\\(k,''='',v\\) for k,v in d.get\\(''tags'',{}\\).items\\(\\)]\")",
+      "Bash(lsof -i :8000)",
+      "Bash(python3 -c \"import struct; print\\(struct.calcsize\\(''P''\\)*8, ''bit''\\)\")",
+      "Bash(cat venv/lib/python3.10/site-packages/*/METADATA)",
+      "Bash(arch -arm64 python3 -m venv venv)",
+      "Bash(pip install --upgrade pip --quiet)",
+      "Bash(pip install fastapi uvicorn openai opencv-python-headless python-dotenv requests python-multipart numpy)",
+      "Bash(lsof -ti :8000)",
+      "Bash(xargs kill -9)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(source /Users/zekeriyyaozkul/Desktop/ai_gaming_shorts/ai_gaming_shorts_web/backend/venv/bin/activate)"
+    ]
+  }
+}

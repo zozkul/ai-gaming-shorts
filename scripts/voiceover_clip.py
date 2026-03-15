@@ -1,8 +1,15 @@
 #!/usr/bin/env python3
-import os, sys, json, subprocess, re
+import os, sys, json, subprocess, re, tempfile, platform as _platform
 from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
+
+if _platform.system() == "Windows":
+    IMPACT_FONT = "C\\:/Windows/Fonts/impact.ttf"
+    UNICODE_FONT = "C\\:/Windows/Fonts/arial.ttf"
+else:
+    IMPACT_FONT = "/System/Library/Fonts/Supplemental/Impact.ttf"
+    UNICODE_FONT = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf"
 
 load_dotenv()
 client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
@@ -56,7 +63,7 @@ def build_subtitle_filter(words, clip_title, audio_start=0.5):
     safe_title = re.sub(r"[':!?]","",safe_title)
     if safe_title:
         filters.append(
-            f"drawtext=fontfile=/System/Library/Fonts/Supplemental/Impact.ttf:"
+            f"drawtext=fontfile={IMPACT_FONT}:"
             f"text='{safe_title}':fontsize=70:fontcolor=yellow:bordercolor=black:borderw=8:"
             f"x=(w-text_w)/2:y=h-200:enable='between(t,0,{audio_start})'"
         )
@@ -72,13 +79,13 @@ def build_subtitle_filter(words, clip_title, audio_start=0.5):
         shadow = '#FF6B00' if color == '#FFFF00' else '#0080FF'
         shake = 5 if dur < 0.4 else 2
         filters.append(
-            f"drawtext=fontfile=/System/Library/Fonts/Supplemental/Impact.ttf:"
+            f"drawtext=fontfile={IMPACT_FONT}:"
             f"text='{word}':fontsize=100:fontcolor={shadow}:"
             f"x='(w-text_w)/2+sin((t-{start})*20)*{shake}+4':y='h-200+4':"
             f"enable='between(t,{start},{end})':alpha='0.8'"
         )
         filters.append(
-            f"drawtext=fontfile=/System/Library/Fonts/Supplemental/Impact.ttf:"
+            f"drawtext=fontfile={IMPACT_FONT}:"
             f"text='{word}':fontsize=100:fontcolor={color}:bordercolor=black:borderw=10:"
             f"x='(w-text_w)/2+sin((t-{start})*20)*{shake}':y='h-200':"
             f"enable='between(t,{start},{end})'"
@@ -106,12 +113,15 @@ def create_voiceover_video(gameplay_clip, tts_audio, words, clip_title, output_p
         f"[1:a]volume=2.2,adelay={int(audio_start*1000)}|{int(audio_start*1000)}[tts_a];"
         f"[game_a][tts_a]amix=inputs=2:duration=longest[aout]"
     )
+    fc_file = os.path.join(tempfile.gettempdir(), "fc_filter.txt")
+    with open(fc_file, "w", encoding="utf-8") as f:
+        f.write(filter_complex)
     cmd = [
         "ffmpeg","-y",
         "-stream_loop","-1",
         "-i", gameplay_clip,
         "-i", tts_audio,
-        "-filter_complex", filter_complex,
+        "-filter_complex_script", fc_file,
         "-map","[vout]","-map","[aout]",
         "-c:v","libx264","-preset","medium","-crf","23",
         "-r","60","-pix_fmt","yuv420p",
@@ -177,7 +187,7 @@ def process_voiceover(game_name, text_input=None, voice="y8mBjGEqtMV3PO41kDm0", 
             commentary = auto_generate_commentary(clip, game_name)
         print(f"   Yorum: {commentary[:80]}")
 
-        tts_path = f"/tmp/tts_{game_name}_{clip_num}.mp3"
+        tts_path = os.path.join(tempfile.gettempdir(), f"tts_{game_name}_{clip_num}.mp3")
         text_to_speech(commentary, tts_path, voice=voice, voice_settings=voice_settings)
 
         print(f"   Whisper ile timestamp aliniyor...")

@@ -5,8 +5,8 @@ from openai import OpenAI
 from dotenv import load_dotenv
 
 if _platform.system() == "Windows":
-    IMPACT_FONT = "C\\:/Windows/Fonts/impact.ttf"
-    UNICODE_FONT = "C\\:/Windows/Fonts/arial.ttf"
+    IMPACT_FONT = "'C:/Windows/Fonts/impact.ttf'"
+    UNICODE_FONT = "'C:/Windows/Fonts/arial.ttf'"
 else:
     IMPACT_FONT = "/System/Library/Fonts/Supplemental/Impact.ttf"
     UNICODE_FONT = "/System/Library/Fonts/Supplemental/Arial Unicode.ttf"
@@ -121,7 +121,7 @@ def create_voiceover_video(gameplay_clip, tts_audio, words, clip_title, output_p
         "-stream_loop","-1",
         "-i", gameplay_clip,
         "-i", tts_audio,
-        "-filter_complex_script", fc_file,
+        "-/filter_complex", fc_file,
         "-map","[vout]","-map","[aout]",
         "-c:v","libx264","-preset","medium","-crf","23",
         "-r","60","-pix_fmt","yuv420p",
